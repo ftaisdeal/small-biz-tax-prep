@@ -1,0 +1,66 @@
+!Type:Bank
+D04/21/2025
+PZelle payment to Illia Lavruseyvich for "Study of lighting system in Phoenix II theater,"; Conf# qrphtqvmf
+T-60.00
+C*
+^
+D04/21/2025
+PZelle payment to Illia Lavruseyvich for "For two hours of study of the software and the"; Conf# rj8sl37xb
+T-60.00
+C*
+^
+D04/22/2025
+PPAYPAL DES:INST XFER ID:LBAF23 INDN:LINKUP CENTRAL CO ID:PAYPALSI77 WEB
+T-10.00
+C*
+^
+D04/23/2025
+PSSA TREAS 310 DES:XXSOC SEC ID:XXXXX7932A SSA INDN:FIRINN TAISDEAL CO ID:XXXXX36216 PPD
+T1,875.00
+C*
+^
+D04/28/2025
+POnline Banking payment to CRD 7660 Confirmation# XXXXX04179
+T-934.07
+C*
+^
+D04/28/2025
+PZelle payment to Illia Lavruseyvich for "For two hours of study of the Keynote file expo"; Conf# oot2ke76e
+T-60.00
+C*
+^
+D04/28/2025
+PMASSIMOCALL DES:IAT PAYPAL ID:XXXXX86998806 INDN:LINKUP CENTRAL CO ID:XXXXX0487C IAT PMT INFO: WEB XXXXXXXXXX00002376
+T-23.76
+C*
+^
+D04/30/2025
+PBank of America Credit Card Bill Payment
+T-53.00
+C*
+^
+D04/30/2025
+PPAYPAL DES:INST XFER ID:LBAF23 INDN:LINKUP CENTRAL CO ID:PAYPALSI77 WEB
+T-50.00
+C*
+^
+D05/01/2025
+POnline transfer to CHK 4904 Confirmation# ppqwruo0x; Lewis
+T-462.46
+C*
+^
+D05/01/2025
+POnline transfer to CHK 4904 Confirmation# qjxpvsk74; Lewis
+T-335.85
+C*
+^
+D05/01/2025
+PFIVE STAR BANK DES:BaaS ACH ID: INDN:FIRINN TAISDEAL CO ID:XXXXX4030 PPD
+T-50.00
+C*
+^
+D05/12/2025
+PCITI CARDS Bill Payment
+T-34.90
+C*
+^

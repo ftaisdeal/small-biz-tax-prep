@@ -1,0 +1,56 @@
+!Type:Bank
+D12/19/2024
+PBANK OF AMERICA CREDIT CARD Bill Payment
+T-170.00
+C*
+^
+D12/24/2024
+PSSA TREAS 310 DES:XXSOC SEC ID:XXXXX7932A SSA INDN:FIRINN TAISDEAL CO ID:XXXXX36216 PPD
+T1,830.00
+C*
+^
+D12/26/2024
+PZelle payment to Paula Favre for "Payment for services as Marketing Director for"; Conf# qfs3dpiop
+T-250.00
+C*
+^
+D12/30/2024
+PBKOFAMERICA ATM 12/28 #XXXXX8335 WITHDRWL BERKELEY MAIN BERKELEY CA
+T-100.00
+C*
+^
+D12/31/2024
+POnline transfer to CHK 4904 Confirmation# rjc49fpm2; Lewis
+T-294.19
+C*
+^
+D12/31/2024
+POnline transfer to CHK 4904 Confirmation# q34cjjc64; Lewis
+T-403.06
+C*
+^
+D01/02/2025
+PFIVE STAR BANK DES:BaaS ACH ID: INDN:FIRINN TAISDEAL CO ID:XXXXX4030 PPD
+T-50.00
+C*
+^
+D01/03/2025
+PZelle payment to Paula Favre for "For services as Marketing Director."; Conf# ja3hv2qoe
+T-250.00
+C*
+^
+D01/10/2025
+PZelle payment to Paula Favre for "Payment for services as Marketing Director of A"; Conf# j1ljbepge
+T-250.00
+C*
+^
+D01/10/2025
+PCITI CARDS Bill Payment
+T-6.79
+C*
+^
+D01/17/2025
+PZelle payment to Paula Favre for "For services as Marketing Director of Adventure"; Conf# kqo07p2m9
+T-250.00
+C*
+^
