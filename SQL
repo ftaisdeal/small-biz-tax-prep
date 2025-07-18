@@ -6,7 +6,7 @@ CREATE TABLE accounts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Transactions table
+-- Transactions table with all fields including 1099 tracking
 CREATE TABLE transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     account_id INTEGER NOT NULL,
@@ -15,17 +15,15 @@ CREATE TABLE transactions (
     payee_description TEXT,
     address_info VARCHAR(255),
     amount DECIMAL(10, 2) NOT NULL,
+    vendor_id INTEGER,
+    payment_type_1099_id INTEGER,
+    is_1099_reportable BOOLEAN DEFAULT FALSE,
+    tax_year INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (account_id) REFERENCES accounts(id)
-);
-
--- Optional: Categories table for expense categorization
-CREATE TABLE categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR(100) NOT NULL,
-    parent_category_id INTEGER,
-    FOREIGN KEY (parent_category_id) REFERENCES categories(id)
+    FOREIGN KEY (account_id) REFERENCES accounts(id),
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id),
+    FOREIGN KEY (payment_type_1099_id) REFERENCES payment_types_1099(id)
 );
 
 -- Transaction categories junction table
@@ -36,6 +34,8 @@ CREATE TABLE transaction_categories (
     FOREIGN KEY (transaction_id) REFERENCES transactions(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
+
+
 
 -- Vendors/Contractors table for 1099 tracking
 CREATE TABLE vendors (
@@ -63,16 +63,13 @@ CREATE TABLE payment_types_1099 (
     form_type VARCHAR(20) DEFAULT '1099-NEC' -- 1099-NEC, 1099-MISC, etc.
 );
 
--- Enhanced transactions table with 1099 tracking
--- Note: This adds columns to the existing transactions table
-ALTER TABLE transactions ADD COLUMN vendor_id INTEGER;
-ALTER TABLE transactions ADD COLUMN payment_type_1099_id INTEGER;
-ALTER TABLE transactions ADD COLUMN is_1099_reportable BOOLEAN DEFAULT FALSE;
-ALTER TABLE transactions ADD COLUMN tax_year INTEGER;
-
--- Add foreign key constraints
--- Note: SQLite doesn't support adding foreign keys to existing tables easily
--- You might need to recreate the table or handle this differently
+-- Categories table for expense categorization
+CREATE TABLE categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL,
+    parent_category_id INTEGER,
+    FOREIGN KEY (parent_category_id) REFERENCES categories(id)
+);
 
 -- 1099 Summary View for easy reporting
 CREATE VIEW v_1099_summary AS
