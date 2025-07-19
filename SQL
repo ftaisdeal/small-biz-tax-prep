@@ -18,6 +18,14 @@ CREATE TABLE transactions (
     FOREIGN KEY (payment_type_1099_id) REFERENCES payment_types_1099(id)
 );
 
+-- Categories table for expense categorization
+CREATE TABLE categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL,
+    parent_category_id INTEGER,
+    FOREIGN KEY (parent_category_id) REFERENCES categories(id)
+);
+
 -- Transaction categories junction table
 CREATE TABLE transaction_categories (
     transaction_id INTEGER,
@@ -26,6 +34,7 @@ CREATE TABLE transaction_categories (
     FOREIGN KEY (transaction_id) REFERENCES transactions(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
+
 
 -- Accounts table
 CREATE TABLE accounts (
@@ -63,13 +72,7 @@ CREATE TABLE payment_types_1099 (
     form_type VARCHAR(20) DEFAULT '1099-NEC' -- 1099-NEC, 1099-MISC, etc.
 );
 
--- Categories table for expense categorization
-CREATE TABLE categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR(100) NOT NULL,
-    parent_category_id INTEGER,
-    FOREIGN KEY (parent_category_id) REFERENCES categories(id)
-);
+
 
 -- 1099 Summary View for easy reporting
 CREATE VIEW v_1099_summary AS
