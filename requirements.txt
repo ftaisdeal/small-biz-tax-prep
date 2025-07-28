@@ -1,0 +1,6 @@
+# No specific requirements yet
+# Add your Python dependencies here as you develop
+# Example:
+# sqlite3 (built-in)
+# tkinter (built-in)
+# datetime (built-in)

@@ -1,0 +1,36 @@
+# Python dependencies
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.pytest_cache/
+
+# Database
+*.db-wal
+*.db-shm
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (uncomment if you don't want to track)
+# data/imports/*
+# data/exports/*
+# data/backups/*
+
+# Logs
+*.log
