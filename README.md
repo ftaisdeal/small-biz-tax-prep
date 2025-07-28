@@ -2,6 +2,8 @@
 
 A comprehensive expense tracking system with 1099 tax reporting capabilities.
 
+Note: In early development. This application will not be ready for some time.
+
 ## Features
 
 - Import transactions from QIF files
