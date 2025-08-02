@@ -186,6 +186,39 @@ class MainWindow(QMainWindow):
         self.profit_loss_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.profit_loss_label)
         
+        # Add separator line
+        separator = QFrame()
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setFrameShadow(QFrame.Shadow.Sunken)
+        separator.setStyleSheet("color: #ccc;")
+        layout.addWidget(separator)
+        
+        # Category breakdown section
+        breakdown_title = QLabel("Expenses by Category")
+        breakdown_title_font = QFont("Arial", 18, QFont.Weight.Bold)
+        breakdown_title.setFont(breakdown_title_font)
+        breakdown_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        breakdown_title.setStyleSheet("margin: 0px;")
+        layout.addWidget(breakdown_title)
+        
+        # Create scroll area for category breakdown
+        self.breakdown_scroll = QScrollArea()
+        self.breakdown_scroll.setMaximumHeight(250)
+        self.breakdown_scroll.setMinimumHeight(150)
+        self.breakdown_scroll.setWidgetResizable(True)
+        self.breakdown_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.breakdown_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.breakdown_scroll.setStyleSheet("border: none; background-color: transparent;")
+        
+        # Create widget for breakdown content
+        self.breakdown_widget = QWidget()
+        self.breakdown_layout = QVBoxLayout(self.breakdown_widget)
+        self.breakdown_layout.setSpacing(2)
+        self.breakdown_layout.setContentsMargins(5, 5, 5, 5)
+        self.breakdown_scroll.setWidget(self.breakdown_widget)
+        
+        layout.addWidget(self.breakdown_scroll)
+        
         # Add some spacing
         layout.addStretch()
         
@@ -224,6 +257,40 @@ class MainWindow(QMainWindow):
         
         self.profit_loss_label.setText(profit_loss_text)
         self.profit_loss_label.setStyleSheet(f"color: {profit_loss_color};")
+        
+        # Update category breakdown
+        self.refresh_category_breakdown()
+    
+    def refresh_category_breakdown(self):
+        """Refresh the category breakdown section"""
+        # Clear existing breakdown
+        for i in reversed(range(self.breakdown_layout.count())): 
+            child = self.breakdown_layout.itemAt(i).widget()
+            if child:
+                child.setParent(None)
+        
+        # Get expense data by category
+        category_expenses = self.db.get_expense_totals_by_category()
+        
+        if not category_expenses:
+            no_data_label = QLabel("No categorized expenses found")
+            no_data_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            no_data_label.setStyleSheet("color: #666; font-style: italic; padding: 20px;")
+            self.breakdown_layout.addWidget(no_data_label)
+            return
+        
+        # Create category expense entries
+        category_font = QFont("Arial", 12)
+        for i, (category_name, total_amount) in enumerate(category_expenses):
+            # Create a simple label for each category
+            category_label = QLabel(f"{category_name.title()}: ${abs(total_amount):,.2f}")
+            category_label.setFont(category_font)
+            category_label.setStyleSheet("color: #333; padding: 2px 0px; border: none; background: transparent;")
+            
+            self.breakdown_layout.addWidget(category_label)
+        
+        # Add stretch at the end to push items to the top
+        self.breakdown_layout.addStretch()
     
     def open_categorize_window(self):
         """Open the categorize transactions window"""

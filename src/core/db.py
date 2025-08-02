@@ -62,3 +62,18 @@ class Database:
             """)
             result = cursor.fetchone()
             return result[0] if result[0] is not None else 0.0
+
+    def get_expense_totals_by_category(self):
+        """Get the total expenses grouped by category (excluding income)"""
+        with self.connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT c.name, SUM(t.amount) as total
+                FROM transactions t
+                INNER JOIN transaction_categories tc ON t.id = tc.transaction_id
+                INNER JOIN categories c ON tc.category_id = c.id
+                WHERE t.amount < 0 AND c.name != 'income'
+                GROUP BY c.id, c.name
+                ORDER BY total ASC
+            """)
+            return cursor.fetchall()
