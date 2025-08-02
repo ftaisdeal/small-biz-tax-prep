@@ -74,6 +74,15 @@ class Database:
                 INNER JOIN categories c ON tc.category_id = c.id
                 WHERE t.amount < 0 AND c.name != 'income'
                 GROUP BY c.id, c.name
-                ORDER BY total ASC
+                ORDER BY 
+                    CASE c.name
+                        WHEN 'contract labor' THEN 1
+                        WHEN 'rent' THEN 2
+                        WHEN 'advertising' THEN 3
+                        WHEN 'supplies' THEN 4
+                        WHEN 'office expense' THEN 5
+                        WHEN 'no category' THEN 6
+                        ELSE 7
+                    END
             """)
             return cursor.fetchall()
