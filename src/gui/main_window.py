@@ -109,30 +109,54 @@ class MainWindow(QMainWindow):
         # Add some spacing
         layout.addStretch()
         
-        # Categorize button
-        categorize_btn = QPushButton("categorize transactions")
+        # Buttons section
         button_font = QFont("Arial", 12)
-        categorize_btn.setFont(button_font)
-        categorize_btn.setFixedSize(150, 40)
-        categorize_btn.setStyleSheet("""
+        
+        # Import button
+        import_btn = QPushButton("import")
+        import_btn.setFont(button_font)
+        import_btn.setFixedSize(100, 40)
+        import_btn.setStyleSheet("""
             QPushButton {
-                background-color: #8b8;
-                color: black;
+                background-color: #2196F3;
+                color: white;
                 border: none;
                 border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #8c8;
+                background-color: #1976D2;
             }
             QPushButton:pressed {
-                background-color: #8a8;
+                background-color: #1565C0;
+            }
+        """)
+        import_btn.clicked.connect(self.open_import_dialog)
+        
+        # Categorize button
+        categorize_btn = QPushButton("categorize")
+        categorize_btn.setFont(button_font)
+        categorize_btn.setFixedSize(100, 40)
+        categorize_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:pressed {
+                background-color: #3d8b40;
             }
         """)
         categorize_btn.clicked.connect(self.open_categorize_window)
         
-        # Center the button
+        # Center the buttons
         button_layout = QHBoxLayout()
         button_layout.addStretch()
+        button_layout.addWidget(import_btn)
+        button_layout.addSpacing(20)  # Space between buttons
         button_layout.addWidget(categorize_btn)
         button_layout.addStretch()
         
@@ -222,3 +246,39 @@ class MainWindow(QMainWindow):
         else:
             self.categorize_window.raise_()
             self.categorize_window.activateWindow()
+    
+    def open_import_dialog(self):
+        """Open the import QIF file dialog"""
+        from PyQt6.QtWidgets import QFileDialog, QMessageBox
+        
+        # Open file dialog to select QIF file
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select QIF File to Import",
+            "",
+            "QIF Files (*.qif);;All Files (*)"
+        )
+        
+        if file_path:
+            try:
+                # Import the QIF file using the existing import_qif module
+                import sys
+                import os
+                sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'cli'))
+                from import_qif import qif_to_sql
+                
+                # Convert QIF to SQL and execute
+                sql_statements = qif_to_sql(file_path)
+                
+                # Execute the SQL statements using the database
+                for statement in sql_statements.split('\n'):
+                    if statement.strip():
+                        self.db.execute_sql(statement)
+                
+                # Refresh the totals after import
+                self.refresh_totals()
+                
+                QMessageBox.information(self, "Import Complete", f"Successfully imported transactions from {os.path.basename(file_path)}")
+                
+            except Exception as e:
+                QMessageBox.critical(self, "Import Error", f"Failed to import file: {str(e)}")

@@ -20,6 +20,19 @@ class Database:
             cursor = conn.cursor()
             cursor.execute("SELECT id, transaction_date, payee_description, amount FROM transactions")
             return cursor.fetchall()
+    
+    def fetch_uncategorized_transactions(self):
+        """Fetch only transactions that have not been categorized"""
+        with self.connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT t.id, t.transaction_date, t.payee_description, t.amount 
+                FROM transactions t
+                LEFT JOIN transaction_categories tc ON t.id = tc.transaction_id
+                WHERE tc.transaction_id IS NULL
+                ORDER BY t.transaction_date DESC
+            """)
+            return cursor.fetchall()
 
     def fetch_transaction_category(self, transaction_id):
         with self.connect() as conn:
@@ -86,3 +99,10 @@ class Database:
                     END
             """)
             return cursor.fetchall()
+    
+    def execute_sql(self, sql_statement):
+        """Execute a SQL statement"""
+        with self.connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql_statement)
+            conn.commit()
