@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.refresh_totals()
         
     def setup_ui(self):
-        self.setWindowTitle("Preppy")
+        self.setWindowTitle("Schedule C")
         
         # Set window size
         window_width = 800
@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
         
         # Title label
-        title_label = QLabel("Preppy")
+        title_label = QLabel("Schedule C")
         title_font = QFont("Verdana", 38)
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
