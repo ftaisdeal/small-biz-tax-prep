@@ -1,9 +1,9 @@
 import sys
 import os
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, 
-                             QHBoxLayout, QLabel, QScrollArea, 
+                             QHBoxLayout, QLabel, QScrollArea,
                              QGridLayout, QComboBox)
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
 # Add the project root to Python path
@@ -16,6 +16,7 @@ class CategorizeWindow(QMainWindow):
         super().__init__(parent)
         self.parent_window = parent
         self.db = Database()
+        self.pending_changes = {}  # Store changes before database update
         self.setup_ui()
         self.load_data()
         
@@ -28,28 +29,29 @@ class CategorizeWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(5, 5, 5, 5)  # Reduced margins
-        layout.setSpacing(0)  # Remove spacing between items
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Force layout to top
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(5)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         
-        # Add refresh button at the top
+        # Add update button at the top
         from PyQt6.QtWidgets import QPushButton
-        refresh_btn = QPushButton("Refresh List")
-        refresh_btn.setFixedHeight(30)
-        refresh_btn.setStyleSheet("""
+        update_btn = QPushButton("Update Database")
+        update_btn.setFixedHeight(35)
+        update_btn.setStyleSheet("""
             QPushButton {
-                background-color: #2196F3;
+                background-color: #4CAF50;
                 color: white;
                 border: none;
                 border-radius: 3px;
-                font-size: 12px;
+                font-size: 14px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #1976D2;
+                background-color: #45a049;
             }
         """)
-        refresh_btn.clicked.connect(self.load_data)
-        layout.addWidget(refresh_btn)
+        update_btn.clicked.connect(self.update_all_categories)
+        layout.addWidget(update_btn)
         
         # Create scroll area
         scroll_area = QScrollArea()
@@ -63,9 +65,9 @@ class CategorizeWindow(QMainWindow):
         
         # Create grid layout for the scrollable content
         self.grid_layout = QGridLayout(scroll_widget)
-        self.grid_layout.setSpacing(1)  # Reduced spacing
-        self.grid_layout.setContentsMargins(0, 0, 0, 0)  # Remove grid margins
-        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop)  # Align content to top
+        self.grid_layout.setSpacing(1)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         
         layout.addWidget(scroll_area)
         
@@ -87,10 +89,10 @@ class CategorizeWindow(QMainWindow):
             no_data_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             no_data_label.setFont(QFont("Arial", 16))
             no_data_label.setStyleSheet("color: #666; margin: 50px; line-height: 1.5;")
-            self.grid_layout.addWidget(no_data_label, 0, 0, 1, 5)  # Span all columns
+            self.grid_layout.addWidget(no_data_label, 0, 0, 1, 5)
             return
         
-        self.category_choices = [cat[1] for cat in categories]  # Remove "unassigned" since all are uncategorized
+        self.category_choices = [cat[1] for cat in categories]
         self.category_id_map = {cat[1]: cat[0] for cat in categories}
         
         # Create headers
@@ -129,16 +131,19 @@ class CategorizeWindow(QMainWindow):
             amount_label.setStyleSheet(style)
             self.grid_layout.addWidget(amount_label, row_num, 3)
             
-            # Create category dropdown - all transactions here are uncategorized
+            # Create category dropdown - EXACT copy from working test
             dropdown = QComboBox()
-            dropdown.addItem("-- Select Category --")  # Add placeholder option without data
+            dropdown.addItem("-- Select Category --")
             dropdown.addItems(self.category_choices)
-            dropdown.setCurrentIndex(0)  # Start with placeholder selected
-            dropdown.setStyleSheet(f"background-color: {row_bg}; border: 1px solid #ddd;")
+            # Remove custom styling that's causing hover issues
+            # dropdown.setStyleSheet(f"background-color: {row_bg}; border: 1px solid #ddd;")
             
-            # Connect dropdown change to update function
-            dropdown.activated.connect(
-                lambda index, txn_id=txn_id, dropdown=dropdown: self.update_category_by_index(txn_id, dropdown, index)
+            # Store transaction ID for later use
+            dropdown.setProperty("transaction_id", txn_id)
+            
+            # Connect using EXACT same method as working test
+            dropdown.currentIndexChanged.connect(
+                lambda index, dd=dropdown: self.handle_selection(index, dd)
             )
             
             self.grid_layout.addWidget(dropdown, row_num, 4)
@@ -150,64 +155,40 @@ class CategorizeWindow(QMainWindow):
         self.grid_layout.setColumnStretch(3, 1)  # Amount
         self.grid_layout.setColumnStretch(4, 1)  # Category
     
-    def update_category_by_index(self, txn_id, dropdown, index):
-        """Update transaction category in database using dropdown index"""
-        if index == 0:  # Skip if placeholder is selected
-            return
-        
-        try:
-            # Get the selected category name (index 0 is placeholder, so subtract 1)
-            selected_category = self.category_choices[index - 1]
+    def handle_selection(self, index, dropdown):
+        """Handle dropdown selection - store change for later update"""
+        if index > 0:  # Skip placeholder
+            # Get selected text
+            selected_category = dropdown.itemText(index)
             
-            # Apply visual feedback immediately
-            dropdown.setStyleSheet(dropdown.styleSheet() + "color: green; font-weight: bold;")
-            dropdown.setEnabled(False)  # Disable to show it's been processed
+            # Get transaction ID
+            txn_id = dropdown.property("transaction_id")
             
+            # Store the pending change (don't update database yet)
             category_id = self.category_id_map[selected_category]
-            self.db.update_transaction_category(txn_id, category_id)
+            self.pending_changes[txn_id] = category_id
             
-            # Refresh parent window if available
-            if self.parent_window and hasattr(self.parent_window, 'refresh_totals'):
-                self.parent_window.refresh_totals()
-            
-            # Don't auto-reload - let user manually refresh if needed
-            # QTimer.singleShot(500, self.load_data)
-            
-        except Exception as e:
-            print(f"Error updating category: {e}")
-            import traceback
-            traceback.print_exc()
+            # Visual feedback that change is pending
+            dropdown.setStyleSheet("background-color: #fff3cd; border: 2px solid #ffc107;")
     
-    def update_category(self, txn_id, selected_category):
-        """Update transaction category in database"""
-        if selected_category == "-- Select Category --" or not selected_category:
-            # Don't update if placeholder is selected
+    def update_all_categories(self):
+        """Update all pending category changes to database"""
+        if not self.pending_changes:
             return
-        
-        try:
-            # Find the dropdown that triggered this and update its display
-            sender = self.sender()
-            if isinstance(sender, QComboBox):
-                # Ensure the dropdown shows the selected category
-                sender.setCurrentText(selected_category)
-                # Add visual feedback
-                sender.setStyleSheet(sender.styleSheet() + "color: green; font-weight: bold;")
-                sender.setEnabled(False)  # Disable to show it's been processed
             
-            category_id = self.category_id_map[selected_category]
+        # Update database with all pending changes
+        for txn_id, category_id in self.pending_changes.items():
             self.db.update_transaction_category(txn_id, category_id)
+        
+        # Clear pending changes
+        self.pending_changes.clear()
+        
+        # Refresh parent window
+        if self.parent_window and hasattr(self.parent_window, 'refresh_totals'):
+            self.parent_window.refresh_totals()
             
-            # Refresh parent window if available
-            if self.parent_window and hasattr(self.parent_window, 'refresh_totals'):
-                self.parent_window.refresh_totals()
-            
-            # Use QTimer to defer the reload to avoid crashes during signal handling
-            QTimer.singleShot(500, self.load_data)  # Increased delay to show the green feedback
-            
-        except Exception as e:
-            print(f"Error updating category: {e}")
-            import traceback
-            traceback.print_exc()
+        # Reload the categorize window to show updated data
+        self.load_data()
     
     def closeEvent(self, event):
         """Handle window close event"""
