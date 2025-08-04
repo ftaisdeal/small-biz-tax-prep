@@ -1,4 +1,4 @@
-# Python dependencies for Small Biz Tax Prep
+# Python dependencies for Tax Prep
 PyQt6>=6.4.0
 # sqlite3 (built-in)
 # datetime (built-in)

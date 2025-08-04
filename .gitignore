@@ -34,3 +34,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Dev
+docs/todo.md

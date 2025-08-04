@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
         
         # Title label
-        title_label = QLabel("Small Biz Tax Prep")
+        title_label = QLabel("Tax Prep")
         title_font = QFont("Arial", 32)
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)

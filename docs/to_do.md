@@ -1,9 +1,10 @@
 # To Do
-- Create a new script that displays revenue and expenses by category for the current year
-- Make the system an app that can be started from an icon
-- Make the whole thing look really good
+- Add a button to the dashboard for profit/loss
+- Add UI and functionality to select a time period to show income and expenses
 - Import all of the other .qif files
 - Add all the tables and code for 1099 forms
+- Make the whole thing look really good
+- Make the system an app that can be started from an icon
 
 ## Notes:
 - To open expense_tracker.sqbpro:
