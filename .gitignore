@@ -31,6 +31,8 @@ data/imports/*
 # OS
 .DS_Store
 Thumbs.db
+Icon?
+Icon*
 
 # Logs
 *.log
