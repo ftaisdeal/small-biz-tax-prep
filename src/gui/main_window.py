@@ -250,12 +250,16 @@ class MainWindow(QMainWindow):
     def open_import_dialog(self):
         """Open the import QIF file dialog"""
         from PyQt6.QtWidgets import QFileDialog, QMessageBox
+        import os
+        
+        # Set default directory for development convenience
+        default_dir = os.path.expanduser("~/Desktop/firinn/holding/b of a/2025")
         
         # Open file dialog to select QIF file
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "Select QIF File to Import",
-            "",
+            default_dir,
             "QIF Files (*.qif);;All Files (*)"
         )
         

@@ -48,14 +48,14 @@ def qif_to_sql(qif_filename):
 
         if line == "^":  # End of transaction entry
             if current_entry and account_id:
-                # Prepare SQL statement for this entry
+                # Prepare SQL statement for this entry - specify columns explicitly
                 sql = (
                     "INSERT INTO transactions (account_id, transaction_date, reference_number, payee_description, address_info, amount) VALUES ("
-                    "{account_id}, '{date}', {ref}, {payee}, {addr}, {amount});"
+                    "{account_id}, '{date}', {ref}, {payee}, {addr}, {amount})"
                 )
                 # Ensure required fields
                 transaction_date = parse_qif_date(current_entry.get("D", ""))
-                amount = current_entry.get("T", "0.00")
+                amount = current_entry.get("T", "0.00").replace(",", "")  # Remove commas from amount
                 # Optional fields
                 reference_number = f"'{current_entry.get('N', '')}'" if current_entry.get("N") else "NULL"
                 payee_description = f"'{current_entry.get('P', '')}'" if current_entry.get("P") else "NULL"
@@ -74,8 +74,8 @@ def qif_to_sql(qif_filename):
             continue
 
         # Transaction field prefixes per QIF spec:
-        # D: Date, T: Amount, N: Reference/Num, P: Payee, M: Memo, A: Address
-        if len(line) > 1 and line[0] in "DTNPMAB":
+        # D: Date, T: Amount, N: Reference/Num, P: Payee, M: Memo, A: Address, C: Cleared status
+        if len(line) > 1 and line[0] in "DTNPMABC":
             key = line[0]
             val = line[1:].strip()
             # If address, allow multiline
