@@ -252,8 +252,8 @@ class MainWindow(QMainWindow):
         from PyQt6.QtWidgets import QFileDialog, QMessageBox
         import os
         
-        # Set default directory for development convenience
-        default_dir = os.path.expanduser("~/Desktop/firinn/holding/b of a/2025")
+        # Set default directory to project's data/imports folder
+        default_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'imports')
         
         # Open file dialog to select QIF file
         file_path, _ = QFileDialog.getOpenFileName(

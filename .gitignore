@@ -13,9 +13,14 @@ pip-delete-this-directory.txt
 .coverage
 .pytest_cache/
 
-# Database
+# Database and data files
+*.db
 *.db-wal
 *.db-shm
+*.sqbpro
+data/backups/*
+data/exports/*
+data/imports/*
 
 # IDE
 .vscode/
@@ -27,11 +32,5 @@ pip-delete-this-directory.txt
 .DS_Store
 Thumbs.db
 
-# Data files (uncomment if you don't want to track)
-# data/imports/*
-# data/exports/*
-# data/backups/*
-
 # Logs
 *.log
-database/expense_tracker.sqbpro

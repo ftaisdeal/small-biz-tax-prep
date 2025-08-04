@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database setup script for the expense tracker
+Database setup script
 """
 import sqlite3
 import os
