@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Launch script for the Tax Prep PyQt6 GUI application.
+Launch script for the Preppy PyQt6 GUI application.
 This script ensures the correct Python environment is used.
 """
 

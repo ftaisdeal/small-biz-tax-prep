@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.refresh_totals()
         
     def setup_ui(self):
-        self.setWindowTitle("Small Biz Tax Prep")
+        self.setWindowTitle("Preppy")
         
         # Set window size
         window_width = 800
@@ -47,23 +47,23 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
         
         # Title label
-        title_label = QLabel("Tax Prep")
-        title_font = QFont("Arial", 32)
+        title_label = QLabel("Preppy")
+        title_font = QFont("Verdana", 38)
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("color: #444; margin-top: 10px; margin-bottom: 6px;")
+        title_label.setStyleSheet("color: #44a; margin-top: 10px; margin-bottom: 6px;")
         layout.addWidget(title_label)
         
         # Subtitle label
         subtitle_label = QLabel("Current Profit / Loss")
-        subtitle_font = QFont("Arial", 18, QFont.Weight.Bold)
+        subtitle_font = QFont("Verdana", 18, QFont.Weight.Bold)
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         subtitle_label.setStyleSheet("color: #000; margin-top: 40px; margin-bottom: 0px;")
         layout.addWidget(subtitle_label)
         
         # Financial summary labels
-        summary_font = QFont("Arial", 14, QFont.Weight.Bold)
+        summary_font = QFont("Verdana", 14, QFont.Weight.Bold)
         
         self.revenue_label = QLabel()
         self.revenue_label.setFont(summary_font)
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         
         # Category breakdown section
         breakdown_title = QLabel("Expenses by Category")
-        breakdown_title_font = QFont("Arial", 18, QFont.Weight.Bold)
+        breakdown_title_font = QFont("Verdana", 18, QFont.Weight.Bold)
         breakdown_title.setFont(breakdown_title_font)
         breakdown_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         breakdown_title.setStyleSheet("margin-top: 40px; margin-bottom: 0px;")
@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
         layout.addStretch()
         
         # Buttons section
-        button_font = QFont("Arial", 12)
+        button_font = QFont("Verdana", 12)
         
         # Import button
         import_btn = QPushButton("import")
@@ -205,7 +205,7 @@ class MainWindow(QMainWindow):
             return
         
         # Create category expense entries
-        category_font = QFont("Arial", 14)
+        category_font = QFont("Verdana", 14)
         for i, (category_name, total_amount) in enumerate(category_expenses):
             # Create a container widget for each row
             row_widget = QWidget()

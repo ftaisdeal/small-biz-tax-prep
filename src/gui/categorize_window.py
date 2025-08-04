@@ -87,7 +87,7 @@ class CategorizeWindow(QMainWindow):
             # Show message when no uncategorized transactions
             no_data_label = QLabel("No uncategorized transactions found.\n\nAll transactions have been categorized.")
             no_data_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            no_data_label.setFont(QFont("Arial", 16))
+            no_data_label.setFont(QFont("Verdana", 16))
             no_data_label.setStyleSheet("color: #666; margin: 50px; line-height: 1.5;")
             self.grid_layout.addWidget(no_data_label, 0, 0, 1, 5)
             return
@@ -97,7 +97,7 @@ class CategorizeWindow(QMainWindow):
         
         # Create headers
         headers = ["ID", "Date", "Payee", "Amount", "Category"]
-        header_font = QFont("Arial", 14, QFont.Weight.Bold)
+        header_font = QFont("Verdana", 14, QFont.Weight.Bold)
         
         for col, header in enumerate(headers):
             header_label = QLabel(header)

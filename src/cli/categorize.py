@@ -64,7 +64,7 @@ def main():
     headers = ["ID", "Date", "Payee", "Amount", "Category", "Action"]
     header_alignments = ["w", "w", "w", "e", "e", "w"]  # left, left, left, right, right, left
     for col_num, header in enumerate(headers):
-        tk.Label(frame, text=header, font=("Arial", 10, "bold")).grid(row=0, column=col_num, padx=4, pady=4, sticky=header_alignments[col_num])
+        tk.Label(frame, text=header, font=("Verdana", 10, "bold")).grid(row=0, column=col_num, padx=4, pady=4, sticky=header_alignments[col_num])
 
     dropdown_vars = []
     for row_num, txn in enumerate(transactions, start=1):
