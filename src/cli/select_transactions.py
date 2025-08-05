@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 import sqlite3
 
-def fetch_transactions():
-    conn = sqlite3.connect('expense_tracker.db')
+def show_transactions():
+    conn = sqlite3.connect('tax_prep.db')
     cursor = conn.cursor()
     cursor.execute("SELECT transaction_date, payee_description, amount FROM transactions")
     rows = cursor.fetchall()
@@ -24,7 +24,7 @@ def get_column_widths(columns, rows):
     return col_widths
 
 def display_transactions():
-    columns, rows = fetch_transactions()
+    columns, rows = show_transactions()
     col_widths = get_column_widths(columns, rows)
 
     root = tk.Tk()

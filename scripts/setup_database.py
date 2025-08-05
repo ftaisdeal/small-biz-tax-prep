@@ -9,9 +9,9 @@ from pathlib import Path
 def setup_database():
     """Create and initialize the expense tracker database"""
     
-    # Get the project root directory
+    # Define paths
     project_root = Path(__file__).parent.parent
-    db_path = project_root / "database" / "expense_tracker.db"
+    db_path = project_root / "database" / "tax_prep.db"
     schema_dir = project_root / "database" / "schema"
     
     # Create database connection

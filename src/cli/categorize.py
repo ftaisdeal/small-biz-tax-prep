@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import sqlite3
 
-DB_NAME = "database/expense_tracker.db"
+DB_NAME = "database/tax_prep.db"
 
 def fetch_categories():
     conn = sqlite3.connect(DB_NAME)

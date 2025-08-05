@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_PATH = "database/expense_tracker.db"
+DB_PATH = "database/tax_prep.db"
 
 class Database:
     def __init__(self, db_path=DB_PATH):

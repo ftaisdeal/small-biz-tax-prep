@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 import sqlite3
 
-def fetch_categories():
-    conn = sqlite3.connect('expense_tracker.db')
+def show_categories():
+    conn = sqlite3.connect('tax_prep.db')
     cursor = conn.cursor()
     cursor.execute("SELECT id, name FROM categories")
     categories = cursor.fetchall()
@@ -11,7 +11,7 @@ def fetch_categories():
     return categories
 
 def main():
-    categories = fetch_categories()
+    categories = show_categories()
     # Prepare display names (you can use just names, or "id - name")
     category_options = [f"{cat[1]}" for cat in categories]  # Just names
 
