@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QLabel, QScrollArea,
                              QGridLayout, QComboBox)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QKeySequence, QShortcut
 
 # Add the project root to Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -22,7 +22,7 @@ class CategorizeWindow(QMainWindow):
         
     def setup_ui(self):
         self.setWindowTitle("Categorize Transactions")
-        self.setGeometry(100, 0, 1100, self.screen().availableGeometry().height())
+        self.setGeometry(400, 0, 860, self.screen().availableGeometry().height())
         
         # Create central widget and main layout
         central_widget = QWidget()
@@ -71,6 +71,10 @@ class CategorizeWindow(QMainWindow):
         
         layout.addWidget(scroll_area)
         
+        # Add keyboard shortcut for Command-W to close window
+        close_shortcut = QShortcut(QKeySequence.StandardKey.Close, self)
+        close_shortcut.activated.connect(self.close)
+        
     def load_data(self):
         # Clear existing layout
         for i in reversed(range(self.grid_layout.count())): 
@@ -107,7 +111,7 @@ class CategorizeWindow(QMainWindow):
         
         # Add transaction rows
         for row_num, txn in enumerate(transactions, start=1):
-            txn_id, txn_date, txn_payee, txn_amount = txn
+            txn_id, txn_date, txn_payee, txn_amount, txn_note = txn
             
             # Alternate row colors
             row_bg = "#ffffff" if row_num % 2 == 1 else "#f8f8f8"
@@ -116,7 +120,8 @@ class CategorizeWindow(QMainWindow):
             # Create labels for transaction data
             id_label = QLabel(str(txn_id))
             id_label.setStyleSheet(style)
-            id_label.setFixedWidth(50)
+            id_label.setFixedWidth(40)
+            id_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             self.grid_layout.addWidget(id_label, row_num, 0)
             
             date_label = QLabel(str(txn_date))
@@ -126,7 +131,7 @@ class CategorizeWindow(QMainWindow):
             
             payee_label = QLabel(str(txn_payee))
             payee_label.setStyleSheet(style)
-            payee_label.setFixedWidth(150)  # Half the original width
+            payee_label.setFixedWidth(275)  # Updated width
             self.grid_layout.addWidget(payee_label, row_num, 2)
             
             amount_label = QLabel(f"{float(txn_amount):.2f}")
@@ -139,7 +144,7 @@ class CategorizeWindow(QMainWindow):
             dropdown = QComboBox()
             dropdown.addItem("-- Select Category --")
             dropdown.addItems(self.category_choices)
-            dropdown.setFixedWidth(180)  # Set width for 22 characters
+            dropdown.setFixedWidth(132)  # Set width for 22 characters
             # Remove custom styling that's causing hover issues
             # dropdown.setStyleSheet(f"background-color: {row_bg}; border: 1px solid #ddd;")
             
@@ -159,6 +164,9 @@ class CategorizeWindow(QMainWindow):
             note_input.setStyleSheet(style)
             note_input.setFixedWidth(240)  # Double the original width
             note_input.setProperty("transaction_id", txn_id)
+            # Set existing note value if it exists
+            if txn_note:
+                note_input.setText(str(txn_note))
             self.grid_layout.addWidget(note_input, row_num, 5)
         
         # Set column stretch factors
@@ -187,44 +195,27 @@ class CategorizeWindow(QMainWindow):
     
     def update_all_categories(self):
         """Update all pending category changes and notes to database"""
-        if not self.pending_changes:
-            return
-            
-        # Collect notes from all note input fields
         from PyQt6.QtWidgets import QLineEdit
         
-        # Update database with all pending changes and notes
+        # First, update all category changes
         for txn_id, category_id in self.pending_changes.items():
-            # Find the note input field for this transaction
-            note_text = ""
-            for row in range(1, self.grid_layout.rowCount()):
-                widget = self.grid_layout.itemAtPosition(row, 5)
-                if widget and isinstance(widget.widget(), QLineEdit):
-                    input_widget = widget.widget()
-                    if input_widget.property("transaction_id") == txn_id:
-                        note_text = input_widget.text()
-                        break
-            
-            # Update category
             self.db.update_transaction_category(txn_id, category_id)
-            
-            # Update note if provided
-            if note_text.strip():
-                escaped_note = note_text.replace("'", "''")
-                self.db.execute_sql(f"UPDATE transactions SET note = '{escaped_note}' WHERE id = {txn_id}")
         
-        # Also update notes for transactions that don't have category changes
+        # Then update ALL notes from ALL note input fields (regardless of category changes)
         for row in range(1, self.grid_layout.rowCount()):
             widget = self.grid_layout.itemAtPosition(row, 5)
             if widget and isinstance(widget.widget(), QLineEdit):
                 input_widget = widget.widget()
                 txn_id = input_widget.property("transaction_id")
-                note_text = input_widget.text()
+                note_text = input_widget.text().strip()
                 
-                # Update note if there's text and this transaction wasn't already updated above
-                if note_text.strip() and txn_id not in self.pending_changes:
+                # Update note - handle both setting and clearing notes
+                if note_text:
                     escaped_note = note_text.replace("'", "''")
                     self.db.execute_sql(f"UPDATE transactions SET note = '{escaped_note}' WHERE id = {txn_id}")
+                else:
+                    # Clear the note if the field is empty
+                    self.db.execute_sql(f"UPDATE transactions SET note = NULL WHERE id = {txn_id}")
         
         # Clear pending changes
         self.pending_changes.clear()

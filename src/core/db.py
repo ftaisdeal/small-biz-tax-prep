@@ -26,7 +26,7 @@ class Database:
         with self.connect() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT t.id, t.transaction_date, t.payee_description, t.amount 
+                SELECT t.id, t.transaction_date, t.payee_description, t.amount, t.note 
                 FROM transactions t
                 LEFT JOIN transaction_categories tc ON t.id = tc.transaction_id
                 WHERE tc.transaction_id IS NULL

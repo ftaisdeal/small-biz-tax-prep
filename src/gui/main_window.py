@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
         # Import button
         import_btn = QPushButton("import")
         import_btn.setFont(button_font)
-        import_btn.setFixedSize(100, 40)
+        import_btn.setFixedSize(90, 36)
         import_btn.setStyleSheet("""
             QPushButton {
                 background-color: #2196F3;
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         # Categorize button
         categorize_btn = QPushButton("categorize")
         categorize_btn.setFont(button_font)
-        categorize_btn.setFixedSize(100, 40)
+        categorize_btn.setFixedSize(90, 36)
         categorize_btn.setStyleSheet("""
             QPushButton {
                 background-color: #4CAF50;
