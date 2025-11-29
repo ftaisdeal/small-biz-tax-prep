@@ -50,8 +50,8 @@ def qif_to_sql(qif_filename):
             if current_entry and account_id:
                 # Prepare SQL statement for this entry - specify columns explicitly
                 sql = (
-                    "INSERT INTO transactions (account_id, transaction_date, reference_number, payee_description, address_info, amount) VALUES ("
-                    "{account_id}, '{date}', {ref}, {payee}, {addr}, {amount})"
+                    "INSERT INTO transactions (account_id, transaction_date, reference_number, payee_description, address_info, amount, note) VALUES ("
+                    "{account_id}, '{date}', {ref}, {payee}, {addr}, {amount}, NULL)"
                 )
                 # Ensure required fields
                 transaction_date = parse_qif_date(current_entry.get("D", ""))

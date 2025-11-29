@@ -82,7 +82,7 @@ def csv_to_sql(csv_file_path, account_id=1):
             parsed_date = parse_csv_date(posted_date)
             
             # Create SQL INSERT statement mapping to database schema
-            sql = f"INSERT INTO transactions (account_id, transaction_date, reference_number, payee_description, address_info, amount, tax_year) VALUES ({account_id}, '{parsed_date}', '{reference_number}', '{payee}', '{address}', {amount}, {datetime.now().year});"
+            sql = f"INSERT INTO transactions (account_id, transaction_date, reference_number, payee_description, address_info, amount, note, tax_year) VALUES ({account_id}, '{parsed_date}', '{reference_number}', '{payee}', '{address}', {amount}, NULL, {datetime.now().year});"
             sql_statements.append(sql)
     
     return '\n'.join(sql_statements)

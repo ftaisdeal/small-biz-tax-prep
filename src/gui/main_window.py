@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
         
         # Title label
-        title_label = QLabel("Schedule C")
+        title_label = QLabel("Tax Prep")
         title_font = QFont("Verdana", 38)
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)

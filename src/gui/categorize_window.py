@@ -21,7 +21,7 @@ class CategorizeWindow(QMainWindow):
         self.load_data()
         
     def setup_ui(self):
-        self.setWindowTitle("Assign Categories to Uncategorized Transactions")
+        self.setWindowTitle("Categorize Transactions")
         self.setGeometry(100, 0, 1100, self.screen().availableGeometry().height())
         
         # Create central widget and main layout
@@ -96,7 +96,7 @@ class CategorizeWindow(QMainWindow):
         self.category_id_map = {cat[1]: cat[0] for cat in categories}
         
         # Create headers
-        headers = ["ID", "Date", "Payee", "Amount", "Category"]
+        headers = ["ID", "Date", "Payee", "Amount", "Category", "Note"]
         header_font = QFont("Verdana", 14, QFont.Weight.Bold)
         
         for col, header in enumerate(headers):
@@ -126,6 +126,7 @@ class CategorizeWindow(QMainWindow):
             
             payee_label = QLabel(str(txn_payee))
             payee_label.setStyleSheet(style)
+            payee_label.setFixedWidth(150)  # Half the original width
             self.grid_layout.addWidget(payee_label, row_num, 2)
             
             amount_label = QLabel(f"{float(txn_amount):.2f}")
@@ -138,6 +139,7 @@ class CategorizeWindow(QMainWindow):
             dropdown = QComboBox()
             dropdown.addItem("-- Select Category --")
             dropdown.addItems(self.category_choices)
+            dropdown.setFixedWidth(180)  # Set width for 22 characters
             # Remove custom styling that's causing hover issues
             # dropdown.setStyleSheet(f"background-color: {row_bg}; border: 1px solid #ddd;")
             
@@ -150,13 +152,22 @@ class CategorizeWindow(QMainWindow):
             )
             
             self.grid_layout.addWidget(dropdown, row_num, 4)
+            
+            # Create note input field - moved to last column
+            from PyQt6.QtWidgets import QLineEdit
+            note_input = QLineEdit()
+            note_input.setStyleSheet(style)
+            note_input.setFixedWidth(240)  # Double the original width
+            note_input.setProperty("transaction_id", txn_id)
+            self.grid_layout.addWidget(note_input, row_num, 5)
         
         # Set column stretch factors
         self.grid_layout.setColumnStretch(0, 0)  # ID column - fixed
         self.grid_layout.setColumnStretch(1, 1)  # Date
-        self.grid_layout.setColumnStretch(2, 2)  # Payee - wider
+        self.grid_layout.setColumnStretch(2, 1)  # Payee - reduced width
         self.grid_layout.setColumnStretch(3, 1)  # Amount
         self.grid_layout.setColumnStretch(4, 1)  # Category
+        self.grid_layout.setColumnStretch(5, 2)  # Note - wider
     
     def handle_selection(self, index, dropdown):
         """Handle dropdown selection - store change for later update"""
@@ -175,13 +186,45 @@ class CategorizeWindow(QMainWindow):
             dropdown.setStyleSheet("background-color: #fff3cd; border: 2px solid #ffc107;")
     
     def update_all_categories(self):
-        """Update all pending category changes to database"""
+        """Update all pending category changes and notes to database"""
         if not self.pending_changes:
             return
             
-        # Update database with all pending changes
+        # Collect notes from all note input fields
+        from PyQt6.QtWidgets import QLineEdit
+        
+        # Update database with all pending changes and notes
         for txn_id, category_id in self.pending_changes.items():
+            # Find the note input field for this transaction
+            note_text = ""
+            for row in range(1, self.grid_layout.rowCount()):
+                widget = self.grid_layout.itemAtPosition(row, 5)
+                if widget and isinstance(widget.widget(), QLineEdit):
+                    input_widget = widget.widget()
+                    if input_widget.property("transaction_id") == txn_id:
+                        note_text = input_widget.text()
+                        break
+            
+            # Update category
             self.db.update_transaction_category(txn_id, category_id)
+            
+            # Update note if provided
+            if note_text.strip():
+                escaped_note = note_text.replace("'", "''")
+                self.db.execute_sql(f"UPDATE transactions SET note = '{escaped_note}' WHERE id = {txn_id}")
+        
+        # Also update notes for transactions that don't have category changes
+        for row in range(1, self.grid_layout.rowCount()):
+            widget = self.grid_layout.itemAtPosition(row, 5)
+            if widget and isinstance(widget.widget(), QLineEdit):
+                input_widget = widget.widget()
+                txn_id = input_widget.property("transaction_id")
+                note_text = input_widget.text()
+                
+                # Update note if there's text and this transaction wasn't already updated above
+                if note_text.strip() and txn_id not in self.pending_changes:
+                    escaped_note = note_text.replace("'", "''")
+                    self.db.execute_sql(f"UPDATE transactions SET note = '{escaped_note}' WHERE id = {txn_id}")
         
         # Clear pending changes
         self.pending_changes.clear()
