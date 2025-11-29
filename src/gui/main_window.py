@@ -248,31 +248,55 @@ class MainWindow(QMainWindow):
             self.categorize_window.activateWindow()
     
     def open_import_dialog(self):
-        """Open the import QIF file dialog"""
+        """Open the import file dialog for QIF and CSV files"""
         from PyQt6.QtWidgets import QFileDialog, QMessageBox
         import os
         
         # Set default directory to project's data/imports folder
         default_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'imports')
         
-        # Open file dialog to select QIF file
+        # Open file dialog to select QIF or CSV file
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            "Select QIF File to Import",
+            "Select File to Import",
             default_dir,
-            "QIF Files (*.qif);;All Files (*)"
+            "Financial Files (*.qif *.csv);;QIF Files (*.qif);;CSV Files (*.csv);;All Files (*)"
         )
         
         if file_path:
             try:
-                # Import the QIF file using the existing import_qif module
+                # Determine file type by extension
+                file_ext = os.path.splitext(file_path)[1].lower()
+                
                 import sys
                 import os
                 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'cli'))
-                from import_qif import qif_to_sql
                 
-                # Convert QIF to SQL and execute
-                sql_statements = qif_to_sql(file_path)
+                if file_ext == '.qif':
+                    # Import QIF file
+                    from import_qif import qif_to_sql
+                    sql_statements = qif_to_sql(file_path)
+                    
+                elif file_ext == '.csv':
+                    # Import CSV file
+                    from import_csv import csv_to_sql
+                    sql_statements = csv_to_sql(file_path)
+                    
+                else:
+                    # Try to detect format by content
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        first_line = f.readline().strip()
+                    
+                    if first_line.startswith('!Type:'):
+                        # QIF format detected
+                        from import_qif import qif_to_sql
+                        sql_statements = qif_to_sql(file_path)
+                    elif ',' in first_line:
+                        # CSV format detected
+                        from import_csv import csv_to_sql
+                        sql_statements = csv_to_sql(file_path)
+                    else:
+                        raise ValueError("Unsupported file format. Please use QIF or CSV files.")
                 
                 # Execute the SQL statements using the database
                 for statement in sql_statements.split('\n'):
