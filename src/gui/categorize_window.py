@@ -121,14 +121,17 @@ class CategorizeWindow(QMainWindow):
             
             date_label = QLabel(str(txn_date))
             date_label.setStyleSheet(style)
+            date_label.setFixedWidth(80)  # Set width for exactly 10 characters
             self.grid_layout.addWidget(date_label, row_num, 1)
             
             payee_label = QLabel(str(txn_payee))
             payee_label.setStyleSheet(style)
             self.grid_layout.addWidget(payee_label, row_num, 2)
             
-            amount_label = QLabel(str(txn_amount))
+            amount_label = QLabel(f"{float(txn_amount):.2f}")
             amount_label.setStyleSheet(style)
+            amount_label.setFixedWidth(70)  # Set width for maximum 8 characters
+            amount_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             self.grid_layout.addWidget(amount_label, row_num, 3)
             
             # Create category dropdown - EXACT copy from working test

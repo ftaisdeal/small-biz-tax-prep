@@ -42,10 +42,8 @@ def csv_to_sql(csv_file_path, account_id=1):
     """
     Convert CSV file to SQL INSERT statements for transactions
     
-    Expected CSV format (with or without headers):
-    Date, Description/Payee, Amount
-    or
-    Date, Description/Payee, Debit, Credit
+    Expected CSV format:
+    Posted Date, Reference Number, Payee, Address, Amount
     """
     
     sql_statements = []
@@ -61,7 +59,7 @@ def csv_to_sql(csv_file_path, account_id=1):
         
         # Skip header row if it exists
         first_row = next(reader, None)
-        if first_row and any(header.lower() in ['date', 'description', 'amount', 'payee'] 
+        if first_row and any(header.lower() in ['date', 'reference', 'payee', 'address', 'amount'] 
                            for header in first_row):
             # This is likely a header row, continue to data
             pass
@@ -71,29 +69,20 @@ def csv_to_sql(csv_file_path, account_id=1):
             reader = csv.reader(file, delimiter=delimiter)
         
         for row in reader:
-            if len(row) < 3:
+            if len(row) < 5:
                 continue  # Skip rows with insufficient data
             
-            date_str = row[0]
-            description = row[1].replace("'", "''")  # Escape single quotes for SQL
-            
-            # Handle different amount formats
-            if len(row) == 3:
-                # Single amount column
-                amount = clean_amount(row[2])
-            elif len(row) >= 4:
-                # Separate debit/credit columns
-                debit = clean_amount(row[2]) if row[2] else 0.0
-                credit = clean_amount(row[3]) if row[3] else 0.0
-                amount = credit - debit  # Credit is positive, debit is negative
-            else:
-                continue
+            posted_date = row[0]
+            reference_number = row[1].replace("'", "''") if row[1] else ""
+            payee = row[2].replace("'", "''") if row[2] else ""
+            address = row[3].replace("'", "''") if row[3] else ""
+            amount = clean_amount(row[4])
             
             # Parse date
-            parsed_date = parse_csv_date(date_str)
+            parsed_date = parse_csv_date(posted_date)
             
-            # Create SQL INSERT statement
-            sql = f"INSERT INTO transactions (account_id, transaction_date, payee_description, amount, tax_year) VALUES ({account_id}, '{parsed_date}', '{description}', {amount}, {datetime.now().year});"
+            # Create SQL INSERT statement mapping to database schema
+            sql = f"INSERT INTO transactions (account_id, transaction_date, reference_number, payee_description, address_info, amount, tax_year) VALUES ({account_id}, '{parsed_date}', '{reference_number}', '{payee}', '{address}', {amount}, {datetime.now().year});"
             sql_statements.append(sql)
     
     return '\n'.join(sql_statements)
