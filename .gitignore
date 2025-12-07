@@ -39,7 +39,7 @@ Icon*
 *.log
 
 # Dev
-docs/todo.md
+docs/to_do.md
 docs/*.pages
 
 w9/
