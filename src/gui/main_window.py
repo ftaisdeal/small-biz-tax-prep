@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.refresh_totals()
         
     def setup_ui(self):
-        self.setWindowTitle("Schedule C")
+        self.setWindowTitle("Schedule C Prep")
         
         # Set window size
         window_width = 800
@@ -47,46 +47,63 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
         
         # Title label
-        title_label = QLabel("Tax Prep")
+        title_label = QLabel("Schedule C Prep")
         title_font = QFont("Verdana", 38)
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("color: #44a; margin-top: 10px; margin-bottom: 6px;")
+        title_label.setStyleSheet("color: #888; margin-top: 20px; margin-bottom: 16px;")
         layout.addWidget(title_label)
         
+        # Create summary container with gray border and background
+        summary_container = QFrame()
+        summary_container.setFixedWidth(600)  # Set fixed width to 600 pixels
+        summary_container.setStyleSheet("""
+            QFrame {
+                background-color: #fafafa;
+                border: 1px solid #aaaaaa;
+                border-radius: 8px;
+            }
+            QFrame QLabel, QFrame QScrollArea, QFrame QWidget {
+                border: none;
+            }
+        """)
+        summary_layout = QVBoxLayout(summary_container)
+        summary_layout.setContentsMargins(40, 40, 40, 40)
+        summary_layout.setSpacing(10)
+        
         # Subtitle label
-        subtitle_label = QLabel("Current Profit / Loss")
-        subtitle_font = QFont("Verdana", 18, QFont.Weight.Bold)
+        subtitle_label = QLabel("Summary for Current Tax Year")
+        subtitle_font = QFont("Verdana", 16, QFont.Weight.Bold)
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle_label.setStyleSheet("color: #000; margin-top: 40px; margin-bottom: 0px;")
-        layout.addWidget(subtitle_label)
+        subtitle_label.setStyleSheet("color: #000; margin-top: 0px; margin-bottom: 0px;")
+        summary_layout.addWidget(subtitle_label)
         
         # Financial summary labels
-        summary_font = QFont("Verdana", 14, QFont.Weight.Bold)
+        summary_font = QFont("Verdana", 14)
         
         self.revenue_label = QLabel()
         self.revenue_label.setFont(summary_font)
         self.revenue_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.revenue_label)
+        summary_layout.addWidget(self.revenue_label)
         
         self.expenses_label = QLabel()
         self.expenses_label.setFont(summary_font)
         self.expenses_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.expenses_label)
+        summary_layout.addWidget(self.expenses_label)
         
         self.profit_loss_label = QLabel()
         self.profit_loss_label.setFont(summary_font)
         self.profit_loss_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.profit_loss_label)
+        summary_layout.addWidget(self.profit_loss_label)
         
         # Category breakdown section
         breakdown_title = QLabel("Expenses by Category")
-        breakdown_title_font = QFont("Verdana", 18, QFont.Weight.Bold)
+        breakdown_title_font = QFont("Verdana", 16, QFont.Weight.Bold)
         breakdown_title.setFont(breakdown_title_font)
         breakdown_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         breakdown_title.setStyleSheet("margin-top: 40px; margin-bottom: 0px;")
-        layout.addWidget(breakdown_title)
+        summary_layout.addWidget(breakdown_title)
         
         # Create scroll area for category breakdown
         self.breakdown_scroll = QScrollArea()
@@ -104,10 +121,17 @@ class MainWindow(QMainWindow):
         self.breakdown_layout.setContentsMargins(5, 5, 5, 5)
         self.breakdown_scroll.setWidget(self.breakdown_widget)
         
-        layout.addWidget(self.breakdown_scroll)
+        summary_layout.addWidget(self.breakdown_scroll)
         
-        # Add some spacing
-        layout.addStretch()
+        # Add the summary container to the main layout with centering
+        container_layout = QHBoxLayout()
+        container_layout.addStretch()
+        container_layout.addWidget(summary_container)
+        container_layout.addStretch()
+        layout.addLayout(container_layout)
+        
+        # Add spacing between summary and buttons
+        layout.addSpacing(20)
         
         # Buttons section
         button_font = QFont("Verdana", 12)
@@ -152,12 +176,56 @@ class MainWindow(QMainWindow):
         """)
         categorize_btn.clicked.connect(self.open_categorize_window)
         
+        # Review button
+        review_btn = QPushButton("review")
+        review_btn.setFont(button_font)
+        review_btn.setFixedSize(90, 36)
+        review_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #757575;
+                color: white;
+                border: none;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #616161;
+            }
+            QPushButton:pressed {
+                background-color: #424242;
+            }
+        """)
+        review_btn.clicked.connect(self.open_review_dialog)
+        
+        # Print button
+        print_btn = QPushButton("print")
+        print_btn.setFont(button_font)
+        print_btn.setFixedSize(90, 36)
+        print_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #757575;
+                color: white;
+                border: none;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #616161;
+            }
+            QPushButton:pressed {
+                background-color: #424242;
+            }
+        """)
+        print_btn.clicked.connect(self.open_print_dialog)
+        
         # Center the buttons
         button_layout = QHBoxLayout()
         button_layout.addStretch()
         button_layout.addWidget(import_btn)
         button_layout.addSpacing(20)  # Space between buttons
         button_layout.addWidget(categorize_btn)
+        button_layout.addSpacing(20)  # Space between buttons
+        button_layout.addWidget(review_btn)
+        button_layout.addSpacing(20)  # Space between buttons
+        button_layout.addWidget(print_btn)
         button_layout.addStretch()
         
         layout.addLayout(button_layout)
@@ -213,25 +281,17 @@ class MainWindow(QMainWindow):
             row_layout.setContentsMargins(0, 2, 0, 2)
             row_layout.setSpacing(0)  # Remove default spacing
             
-            # Category name label (right-aligned)
-            name_label = QLabel(category_name.title())
-            name_label.setFont(category_font)
-            name_label.setAlignment(Qt.AlignmentFlag.AlignRight)
-            name_label.setStyleSheet("color: #333; border: none; background: transparent; font-weight: bold; font-size: 14px; margin-right: 4px;")
-            name_label.setFixedWidth(150)  # Fixed width for consistent column alignment
+            # Combined category and amount label
+            combined_text = f"{category_name.title()}: ${abs(total_amount):,.2f}"
+            combined_label = QLabel(combined_text)
+            combined_label.setFont(category_font)
+            combined_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            combined_label.setStyleSheet("color: #333; border: none; background: transparent; font-size: 14px;")
             
-            # Amount label (right-aligned)
-            amount_label = QLabel(f"${abs(total_amount):,.2f}")
-            amount_label.setFont(category_font)
-            amount_label.setAlignment(Qt.AlignmentFlag.AlignRight)
-            amount_label.setStyleSheet("color: #333; border: none; background: transparent; font-size: 14px;")
-            amount_label.setFixedWidth(100)  # Fixed width for consistent column alignment
-            
-            # Add labels to row layout with no extra spacing
-            row_layout.addStretch()  # Left stretch to center the table
-            row_layout.addWidget(name_label)
-            row_layout.addWidget(amount_label)
-            row_layout.addStretch()  # Right stretch to center the table
+            # Center the combined label
+            row_layout.addStretch()  # Left stretch to center
+            row_layout.addWidget(combined_label)
+            row_layout.addStretch()  # Right stretch to center
             
             self.breakdown_layout.addWidget(row_widget)
         
@@ -310,3 +370,13 @@ class MainWindow(QMainWindow):
                 
             except Exception as e:
                 QMessageBox.critical(self, "Import Error", f"Failed to import file: {str(e)}")
+    
+    def open_review_dialog(self):
+        """Open the review dialog"""
+        from PyQt6.QtWidgets import QMessageBox
+        QMessageBox.information(self, "Review", "Review functionality will be implemented here.")
+    
+    def open_print_dialog(self):
+        """Open the print dialog"""
+        from PyQt6.QtWidgets import QMessageBox
+        QMessageBox.information(self, "Print", "Print functionality will be implemented here.")
