@@ -210,26 +210,6 @@ class MainWindow(QMainWindow):
         """)
         categorize_btn.clicked.connect(self.open_categorize_window)
         
-        # Review button
-        review_btn = QPushButton("review")
-        review_btn.setFont(button_font)
-        review_btn.setFixedSize(90, 36)
-        review_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #757575;
-                color: white;
-                border: none;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #616161;
-            }
-            QPushButton:pressed {
-                background-color: #424242;
-            }
-        """)
-        review_btn.clicked.connect(self.open_review_dialog)
-        
         # Print button
         print_btn = QPushButton("print")
         print_btn.setFont(button_font)
@@ -256,8 +236,6 @@ class MainWindow(QMainWindow):
         button_layout.addWidget(import_btn)
         button_layout.addSpacing(20)  # Space between buttons
         button_layout.addWidget(categorize_btn)
-        button_layout.addSpacing(20)  # Space between buttons
-        button_layout.addWidget(review_btn)
         button_layout.addSpacing(20)  # Space between buttons
         button_layout.addWidget(print_btn)
         button_layout.addStretch()
@@ -412,11 +390,6 @@ class MainWindow(QMainWindow):
                 
             except Exception as e:
                 QMessageBox.critical(self, "Import Error", f"Failed to import file: {str(e)}")
-    
-    def open_review_dialog(self):
-        """Open the review dialog"""
-        from PyQt6.QtWidgets import QMessageBox
-        QMessageBox.information(self, "Review", "Review functionality will be implemented here.")
     
     def open_print_dialog(self):
         """Open the print dialog"""
