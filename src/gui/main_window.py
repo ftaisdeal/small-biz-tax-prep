@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
         subtitle_font = QFont("Verdana", 38)
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle_label.setStyleSheet("color: #888; margin-top: 20px; margin-bottom: 16px;")
+        subtitle_label.setStyleSheet("color: #888; margin-top: 0px; margin-bottom: 16px;")
         summary_layout.addWidget(subtitle_label)
         
         # Year selector dropdown
@@ -136,7 +136,7 @@ class MainWindow(QMainWindow):
         breakdown_title_font = QFont("Verdana", 16, QFont.Weight.Bold)
         breakdown_title.setFont(breakdown_title_font)
         breakdown_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        breakdown_title.setStyleSheet("margin-top: 40px; margin-bottom: 0px;")
+        breakdown_title.setStyleSheet("margin-top: 40px; margin-bottom: 5px;")
         summary_layout.addWidget(breakdown_title)
         
         # Create scroll area for category breakdown
@@ -146,13 +146,13 @@ class MainWindow(QMainWindow):
         self.breakdown_scroll.setWidgetResizable(True)
         self.breakdown_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.breakdown_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.breakdown_scroll.setStyleSheet("border: none; background-color: transparent;")
+        self.breakdown_scroll.setStyleSheet("border: none; background-color: transparent; margin-top: 0px;")
         
         # Create widget for breakdown content
         self.breakdown_widget = QWidget()
         self.breakdown_layout = QVBoxLayout(self.breakdown_widget)
         self.breakdown_layout.setSpacing(2)
-        self.breakdown_layout.setContentsMargins(5, 0, 5, 5)
+        self.breakdown_layout.setContentsMargins(5, 5, 5, 5)
         self.breakdown_scroll.setWidget(self.breakdown_widget)
         
         summary_layout.addWidget(self.breakdown_scroll)
