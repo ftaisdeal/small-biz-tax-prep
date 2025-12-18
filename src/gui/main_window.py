@@ -420,5 +420,253 @@ class MainWindow(QMainWindow):
     
     def open_print_dialog(self):
         """Open the print dialog"""
-        from PyQt6.QtWidgets import QMessageBox
-        QMessageBox.information(self, "Print", "Print functionality will be implemented here.")
+        from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QLabel
+        from PyQt6.QtCore import Qt
+        from PyQt6.QtPrintSupport import QPrintDialog, QPrinter
+        from PyQt6.QtGui import QTextDocument, QFont
+        
+        # Create print preview dialog
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Print Preview - Schedule C Summary")
+        dialog.resize(600, 700)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Title
+        title_label = QLabel("Print Preview")
+        title_font = QFont("Verdana", 16, QFont.Weight.Bold)
+        title_label.setFont(title_font)
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title_label)
+        
+        # Text area for print content
+        text_edit = QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setStyleSheet("""
+            QTextEdit {
+                font-family: 'Times New Roman', 'Times', serif;
+                font-size: 12px;
+                line-height: 1.4;
+                background-color: white;
+                border: 1px solid #ccc;
+            }
+        """)
+        
+        # Generate print content
+        print_content = self.generate_print_content()
+        text_edit.setHtml(print_content)
+        
+        layout.addWidget(text_edit)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        
+        print_button = QPushButton("Print")
+        print_button.setFixedSize(80, 32)
+        print_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+        """)
+        
+        cancel_button = QPushButton("Cancel")
+        cancel_button.setFixedSize(80, 32)
+        cancel_button.setStyleSheet("""
+            QPushButton {
+                background-color: #757575;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #616161;
+            }
+        """)
+        
+        def print_document():
+            printer = QPrinter(QPrinter.PrinterMode.HighResolution)
+            print_dialog = QPrintDialog(printer, dialog)
+            
+            if print_dialog.exec() == QPrintDialog.DialogCode.Accepted:
+                document = QTextDocument()
+                document.setHtml(print_content)
+                document.print(printer)
+                dialog.accept()
+        
+        print_button.clicked.connect(print_document)
+        cancel_button.clicked.connect(dialog.reject)
+        
+        button_layout.addStretch()
+        button_layout.addWidget(print_button)
+        button_layout.addSpacing(10)
+        button_layout.addWidget(cancel_button)
+        button_layout.addStretch()
+        
+        layout.addLayout(button_layout)
+        
+        dialog.exec()
+    
+    def generate_print_content(self):
+        """Generate HTML content for printing"""
+        from datetime import datetime
+        
+        # Get the data
+        total_revenue = self.db.get_total_categorized_revenue(self.current_tax_year)
+        total_expenses = self.db.get_total_categorized_expenses(self.current_tax_year)
+        profit_loss = total_revenue + total_expenses
+        category_expenses = self.db.get_expense_totals_by_category(self.current_tax_year)
+        
+        # Generate timestamp
+        timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p")
+        
+        # Create HTML content
+        html_content = f"""
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: 'Times New Roman', 'Times', serif;
+                    font-size: 12pt;
+                    line-height: 1.6;
+                    margin: 40px;
+                    color: black;
+                }}
+                .header {{
+                    text-align: center;
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid black;
+                    padding-bottom: 20px;
+                }}
+                .title {{
+                    font-size: 24pt;
+                    font-weight: bold;
+                    margin-bottom: 10px;
+                }}
+                .subtitle {{
+                    font-size: 14pt;
+                    color: #333;
+                    margin-bottom: 5px;
+                }}
+                .timestamp {{
+                    font-size: 10pt;
+                    color: #777;
+                    font-style: italic;
+                }}
+                .summary {{
+                    margin: 30px 0;
+                }}
+                .summary-item {{
+                    margin: 10px 0;
+                    padding: 8px;
+                    border-bottom: 1px dotted #ccc;
+                }}
+                .summary-label {{
+                    font-weight: bold;
+                    display: inline-block;
+                    width: 120px;
+                }}
+                .summary-value {{
+                    font-weight: normal;
+                }}
+                .profit {{
+                    color: black;
+                }}
+                .loss {{
+                    color: red;
+                }}
+                .categories {{
+                    margin-top: 30px;
+                }}
+                .categories-title {{
+                    font-size: 16pt;
+                    font-weight: bold;
+                    margin-bottom: 15px;
+                    text-align: center;
+                    border-bottom: 1px solid black;
+                    padding-bottom: 10px;
+                }}
+                .category-item {{
+                    margin: 8px 0;
+                    padding: 5px;
+                    border-bottom: 1px dotted #ddd;
+                }}
+                .category-name {{
+                    font-weight: bold;
+                    display: inline-block;
+                    width: 200px;
+                }}
+                .category-amount {{
+                    font-weight: normal;
+                }}
+                .no-data {{
+                    font-style: italic;
+                    color: #666;
+                    text-align: center;
+                    margin: 20px 0;
+                }}
+                .footer {{
+                    margin-top: 50px;
+                    border-top: 1px solid #ccc;
+                    padding-top: 20px;
+                    font-size: 10pt;
+                    color: #777;
+                    text-align: center;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="title">Schedule C Prep</div>
+                <div class="subtitle">Tax Year {self.current_tax_year}</div>
+                <div class="timestamp">Generated on {timestamp}</div>
+            </div>
+            
+            <div class="summary">
+                <div class="summary-item">
+                    <span class="summary-label">Revenue:</span>
+                    <span class="summary-value">${total_revenue:,.2f}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Expenses:</span>
+                    <span class="summary-value">${abs(total_expenses):,.2f}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">{"Profit:" if profit_loss >= 0 else "Loss:"}</span>
+                    <span class="summary-value {'profit' if profit_loss >= 0 else 'loss'}">${abs(profit_loss):,.2f}</span>
+                </div>
+            </div>
+            
+            <div class="categories">
+                <div class="categories-title">Expenses by Category</div>
+        """
+        
+        if category_expenses:
+            for category_name, total_amount in category_expenses:
+                html_content += f"""
+                <div class="category-item">
+                    <span class="category-name">{category_name.title()}:</span>
+                    <span class="category-amount">${abs(total_amount):,.2f}</span>
+                </div>
+                """
+        else:
+            html_content += '<div class="no-data">No categorized expenses found</div>'
+        
+        html_content += """
+            </div>
+            
+            <div class="footer">
+                Generated by Schedule C Prep Application
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html_content
