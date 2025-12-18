@@ -2,7 +2,7 @@ import sys
 import os
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QLabel, QPushButton, QScrollArea, 
-                             QFrame)
+                             QFrame, QComboBox)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
@@ -17,6 +17,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.db = Database()
         self.categorize_window = None
+        self.current_tax_year = 2025  # Current tax year
         self.setup_ui()
         self.refresh_totals()
         
@@ -43,16 +44,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(20, 60, 20, 20)
         layout.setSpacing(10)
-        
-        # Title label
-        title_label = QLabel("Schedule C Prep")
-        title_font = QFont("Verdana", 38)
-        title_label.setFont(title_font)
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("color: #888; margin-top: 20px; margin-bottom: 16px;")
-        layout.addWidget(title_label)
         
         # Create summary container with gray border and background
         summary_container = QFrame()
@@ -72,12 +65,53 @@ class MainWindow(QMainWindow):
         summary_layout.setSpacing(10)
         
         # Subtitle label
-        subtitle_label = QLabel("Summary for Current Tax Year")
-        subtitle_font = QFont("Verdana", 16, QFont.Weight.Bold)
+        subtitle_label = QLabel("Schedule C Prep")
+        subtitle_font = QFont("Verdana", 38)
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle_label.setStyleSheet("color: #000; margin-top: 0px; margin-bottom: 0px;")
+        subtitle_label.setStyleSheet("color: #888; margin-top: 20px; margin-bottom: 16px;")
         summary_layout.addWidget(subtitle_label)
+        
+        # Year selector dropdown
+        year_selector_layout = QHBoxLayout()
+        year_selector_layout.addStretch()
+        
+        self.year_combo = QComboBox()
+        self.year_combo.addItem("Current Tax Year (2025)", 2025)
+        self.year_combo.addItem("Previous Tax Year (2024)", 2024)
+        self.year_combo.setCurrentIndex(0)  # Default to current tax year
+        combo_font = QFont("Verdana", 12)
+        self.year_combo.setFont(combo_font)
+        self.year_combo.setStyleSheet("""
+            QComboBox {
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                padding: 4px 8px;
+                background-color: #e8e8e8;
+                color: black;
+                min-width: 180px;
+            }
+            QComboBox:hover {
+                border: 1px solid #999;
+                background-color: #ddd;
+            }
+            QComboBox:focus {
+                border: 1px solid #2196F3;
+                outline: none;
+            }
+            QComboBox QAbstractItemView {
+                border: 1px solid #ccc;
+                background-color: white;
+                selection-background-color: #e3f2fd;
+                selection-color: black;
+                outline: none;
+            }
+        """)
+        self.year_combo.currentIndexChanged.connect(self.on_year_changed)
+        year_selector_layout.addWidget(self.year_combo)
+        
+        year_selector_layout.addStretch()
+        summary_layout.addLayout(year_selector_layout)
         
         # Financial summary labels
         summary_font = QFont("Verdana", 14)
@@ -118,7 +152,7 @@ class MainWindow(QMainWindow):
         self.breakdown_widget = QWidget()
         self.breakdown_layout = QVBoxLayout(self.breakdown_widget)
         self.breakdown_layout.setSpacing(2)
-        self.breakdown_layout.setContentsMargins(5, 5, 5, 5)
+        self.breakdown_layout.setContentsMargins(5, 0, 5, 5)
         self.breakdown_scroll.setWidget(self.breakdown_widget)
         
         summary_layout.addWidget(self.breakdown_scroll)
@@ -231,10 +265,18 @@ class MainWindow(QMainWindow):
         layout.addLayout(button_layout)
         layout.addStretch()
     
+    def on_year_changed(self):
+        """Handle year selection change"""
+        selected_year = self.year_combo.currentData()
+        self.current_tax_year = selected_year
+        
+        # Refresh all data for the selected year
+        self.refresh_totals()
+    
     def refresh_totals(self):
         """Refresh the revenue, expenses, and profit/loss display"""
-        total_revenue = self.db.get_total_categorized_revenue()
-        total_expenses = self.db.get_total_categorized_expenses()
+        total_revenue = self.db.get_total_categorized_revenue(self.current_tax_year)
+        total_expenses = self.db.get_total_categorized_expenses(self.current_tax_year)
         profit_loss = total_revenue + total_expenses  # expenses are negative, so we add them
         
         self.revenue_label.setText(f"Revenue: ${total_revenue:,.2f}")
@@ -263,7 +305,7 @@ class MainWindow(QMainWindow):
                 child.setParent(None)
         
         # Get expense data by category
-        category_expenses = self.db.get_expense_totals_by_category()
+        category_expenses = self.db.get_expense_totals_by_category(self.current_tax_year)
         
         if not category_expenses:
             no_data_label = QLabel("No categorized expenses found")
