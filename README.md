@@ -8,7 +8,7 @@ Note: In early development. This application will not be ready for some time.
 
 - Import transactions from QIF or CSV files
 - Categorize expenses
-- Dashboard of current Profit or Loss
+- Dashboard of current profit or loss status
 - Track 1099-reportable payments to vendors
 - Generate tax reports
 - SQLite database backend
