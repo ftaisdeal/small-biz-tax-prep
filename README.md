@@ -1,13 +1,14 @@
 # Expense Tracker
 
-A comprehensive expense tracking system with 1099 tax reporting capabilities.
+A comprehensive expense tracking system with 1099/Schedule C tax reporting capabilities.
 
 Note: In early development. This application will not be ready for some time.
 
 ## Features
 
-- Import transactions from QIF files
+- Import transactions from QIF or CSV files
 - Categorize expenses
+- Dashboard of current Profit or Loss
 - Track 1099-reportable payments to vendors
 - Generate tax reports
 - SQLite database backend
